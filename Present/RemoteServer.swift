@@ -155,13 +155,15 @@ final class RemoteServer {
       body {
         font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
         background: #1a1a2e; color: #eee;
-        display: flex; flex-direction: column; align-items: center;
-        height: 100dvh; padding: 20px; gap: 12px;
+        display: flex; flex-direction: column; align-items: stretch;
+        height: 100dvh; padding: 16px; gap: 12px;
         -webkit-user-select: none; user-select: none;
       }
+      /* In portrait the sidebar is invisible — its children flow directly into body */
+      .sidebar { display: contents; }
       #status { font-size: 1.6rem; font-weight: 600; text-align: center; }
-      #url { font-size: 0.8rem; opacity: 0.4; word-break: break-all; text-align: center; max-width: 90vw; }
-      .nav-row { display: flex; gap: 12px; width: 100%; max-width: 400px; }
+      #url { font-size: 0.8rem; opacity: 0.4; word-break: break-all; text-align: center; }
+      .nav-row { display: flex; gap: 12px; }
       .nav-row button { flex: 1; min-height: 60px; font-size: 1.2rem; font-weight: 600;
         border: none; border-radius: 14px; cursor: pointer;
         transition: transform 0.1s, opacity 0.1s; }
@@ -169,7 +171,7 @@ final class RemoteServer {
       .btn-play { background: #0f3460; color: #53d8fb; }
       .btn-stop { background: #e94560; color: #fff; }
       .btn-all { background: #16213e; color: #aaa; flex: none !important; width: 60px; }
-      .play-row { display: flex; gap: 12px; width: 100%; max-width: 400px; flex: 1; min-height: 0; }
+      .play-row { display: flex; gap: 12px; flex: 1; min-height: 0; }
       .nav-cards { display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0; }
       .nav-card {
         display: flex; flex-direction: column; align-items: flex-start;
@@ -189,7 +191,7 @@ final class RemoteServer {
         align-self: stretch;
       }
       .scroll-strip:active { cursor: grabbing; background: #1a2740; }
-      .zoom-row { display: flex; gap: 12px; width: 100%; max-width: 400px; }
+      .zoom-row { display: flex; gap: 12px; }
       .btn-zoom { flex: 1; padding: 0; font-size: 1.3rem; font-weight: 600;
         background: #16213e; color: #aaa; border: none; border-radius: 14px;
         cursor: pointer; min-height: 60px;
@@ -209,14 +211,38 @@ final class RemoteServer {
       #slideList li { padding: 14px; border-radius: 10px; margin-bottom: 8px;
         background: #16213e; font-size: 0.9rem; word-break: break-all; cursor: pointer; }
       #slideList li.current { background: #0f3460; color: #53d8fb; }
+
+      @media (orientation: landscape) {
+        body { flex-direction: row; align-items: stretch; }
+        .sidebar {
+          display: flex; flex-direction: column; gap: 10px;
+          width: 150px; flex-shrink: 0;
+        }
+        #status { font-size: 1.2rem; }
+        #url { text-align: left; }
+        .nav-row { flex-direction: column; }
+        .nav-row button { min-height: 44px; flex: 1; }
+        .zoom-row { flex-direction: column; }
+        .btn-zoom { min-height: 44px; flex: 1; }
+        .play-row { flex: 1; min-width: 0; }
+        .nav-cards { flex-direction: row; }
+        .btn-prev { flex: 1; }
+        .btn-next { flex: 2; }
+      }
     </style>
     </head>
     <body>
-      <div id="status">Connecting...</div>
-      <div id="url"></div>
-      <div class="nav-row">
-        <button id="playBtn" class="btn-play" onclick="togglePlay()">&#9654; Start</button>
-        <button class="btn-all" onclick="toggleList()">&#9776;</button>
+      <div class="sidebar">
+        <div id="status">Connecting...</div>
+        <div id="url"></div>
+        <div class="nav-row">
+          <button id="playBtn" class="btn-play" onclick="togglePlay()">&#9654; Start</button>
+          <button class="btn-all" onclick="toggleList()">&#9776;</button>
+        </div>
+        <div class="zoom-row">
+          <button class="btn-zoom" onclick="send('/zoomout')">A-</button>
+          <button class="btn-zoom" onclick="send('/zoomin')">A+</button>
+        </div>
       </div>
       <div class="play-row">
         <div class="nav-cards">
@@ -230,10 +256,6 @@ final class RemoteServer {
           </button>
         </div>
         <div class="scroll-strip" id="scrollStrip">&#8597;</div>
-      </div>
-      <div class="zoom-row">
-        <button class="btn-zoom" onclick="send('/zoomout')">A-</button>
-        <button class="btn-zoom" onclick="send('/zoomin')">A+</button>
       </div>
       <div id="listOverlay" style="display:none">
         <div class="list-header">
