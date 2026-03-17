@@ -4,6 +4,13 @@ import WebKit
 struct WebView: NSViewRepresentable {
     let url: String
     var pageZoom: Double = 1.0
+    @Binding var currentURL: String?
+
+    init(url: String, pageZoom: Double = 1.0, currentURL: Binding<String?> = .constant(nil)) {
+        self.url = url
+        self.pageZoom = pageZoom
+        self._currentURL = currentURL
+    }
 
     private var isImageURL: Bool {
         let lower = url.lowercased().split(separator: "?").first.map(String.init) ?? url.lowercased()
@@ -65,7 +72,9 @@ struct WebView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let webView = WKWebView()
         webView.allowsBackForwardNavigationGestures = false
+        webView.navigationDelegate = context.coordinator
         context.coordinator.webView = webView
+        context.coordinator.onNavigate = { url in self.currentURL = url }
         context.coordinator.startListening()
         applyContent(in: webView, coordinator: context.coordinator)
         return webView
@@ -73,6 +82,7 @@ struct WebView: NSViewRepresentable {
 
     func updateNSView(_ webView: WKWebView, context: Context) {
         context.coordinator.webView = webView
+        context.coordinator.onNavigate = { url in self.currentURL = url }
         applyContent(in: webView, coordinator: context.coordinator)
     }
 
@@ -122,10 +132,15 @@ struct WebView: NSViewRepresentable {
         }
     }
 
-    class Coordinator {
+    class Coordinator: NSObject, WKNavigationDelegate {
         weak var webView: WKWebView?
         var lastLoadedURL: String?
+        var onNavigate: ((String?) -> Void)?
         private var observer: NSObjectProtocol?
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            onNavigate?(webView.url?.absoluteString)
+        }
 
         func startListening() {
             guard observer == nil else { return }

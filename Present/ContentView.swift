@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @Bindable var state: PresentationState
     @State private var selection: UUID?
+    @State private var currentWebViewURL: String?
 
     var body: some View {
         NavigationSplitView {
@@ -39,6 +40,7 @@ struct ContentView: View {
                     if let newValue, let index = state.slides.firstIndex(where: { $0.id == newValue }) {
                         state.currentIndex = index
                     }
+                    currentWebViewURL = nil
                 }
 
                 HStack {
@@ -56,7 +58,7 @@ struct ContentView: View {
             .navigationSplitViewColumnWidth(min: 150, ideal: 250, max: 500)
         } detail: {
             if let slide = state.currentSlide {
-                WebView(url: slide.url, pageZoom: state.zoomLevel)
+                WebView(url: slide.url, pageZoom: state.zoomLevel, currentURL: $currentWebViewURL)
             } else {
                 VStack {
                     Text("No slide selected")
@@ -80,6 +82,9 @@ struct ContentView: View {
 
     private func addSlide() {
         let slide = Slide()
+        if let navigatedURL = currentWebViewURL, !navigatedURL.isEmpty {
+            slide.url = navigatedURL
+        }
         state.slides.append(slide)
         selection = slide.id
         state.currentIndex = state.slides.count - 1
