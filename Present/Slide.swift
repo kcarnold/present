@@ -19,6 +19,7 @@ class PresentationState {
     var currentIndex: Int = 0
     var isPresenting: Bool = false
     var zoomLevel: Double = 1.0
+    var currentFileURL: URL?
 
     func zoomIn() { zoomLevel = min(zoomLevel + 0.1, 5.0) }
     func zoomOut() { zoomLevel = max(zoomLevel - 0.1, 0.3) }
@@ -64,6 +65,7 @@ class PresentationState {
         guard !urls.isEmpty else { return false }
         slides = urls.map { Slide(url: $0) }
         currentIndex = 0
+        currentFileURL = url
         return true
     }
 
@@ -71,6 +73,7 @@ class PresentationState {
         let contents = slides.map { $0.url }.joined(separator: "\n") + "\n"
         do {
             try contents.write(to: url, atomically: true, encoding: .utf8)
+            currentFileURL = url
             return true
         } catch {
             return false

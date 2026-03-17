@@ -38,10 +38,20 @@ struct PresentApp: App {
                 }
                 .keyboardShortcut("o", modifiers: .command)
 
+                Button("Save") {
+                    if let url = state.currentFileURL {
+                        _ = state.saveToFile(url)
+                    } else {
+                        FileDialogHelper.save(state: state)
+                    }
+                }
+                .keyboardShortcut("s", modifiers: .command)
+                .disabled(state.slides.isEmpty)
+
                 Button("Save As...") {
                     FileDialogHelper.save(state: state)
                 }
-                .keyboardShortcut("s", modifiers: .command)
+                .keyboardShortcut("s", modifiers: [.command, .shift])
             }
 
             CommandMenu("View") {
