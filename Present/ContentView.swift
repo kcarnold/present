@@ -14,13 +14,14 @@ struct ContentView: View {
                             Text("\(index + 1).")
                                 .foregroundStyle(.secondary)
                                 .frame(width: 24, alignment: .trailing)
-                                .draggable(slide.id.uuidString)
                             TextField("URL", text: Binding(
                                 get: { slide.url },
                                 set: { slide.url = $0; state.saveToDisk() }
                             ))
                             .textFieldStyle(.roundedBorder)
+                            .allowsHitTesting(selection == slide.id)
                         }
+                        .draggable(slide.id.uuidString)
                         .tag(slide.id)
                         .dropDestination(for: String.self) { items, _ in
                             guard let draggedIDString = items.first,
