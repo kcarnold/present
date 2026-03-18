@@ -24,6 +24,11 @@ struct WebView: NSViewRepresentable {
     private var textSlideHTML: String {
         var content = String(url.dropFirst().dropLast())
         content = content.replacingOccurrences(of: "\\n", with: "\n")
+        let isQuestion = content.hasPrefix("? ")
+        if isQuestion {
+            content = String(content.dropFirst(2))
+        }
+        let bgColor = isQuestion ? "#1a1a2e" : "#000"
         let lines = content.components(separatedBy: "\n")
         var htmlLines: [String] = []
         for line in lines {
@@ -54,7 +59,7 @@ struct WebView: NSViewRepresentable {
         <html><head><meta name="viewport" content="width=device-width">
         <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{background:#000;color:#fff;display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;font-family:system-ui,-apple-system,sans-serif;font-size:2.2rem;line-height:1.4}
+        body{background:\(bgColor);color:#fff;display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;font-family:system-ui,-apple-system,sans-serif;font-size:2.2rem;line-height:1.4}
         .content{max-width:900px;padding:3rem;text-align:center}
         h1{font-size:3rem;margin-bottom:0.6em}
         h2{font-size:2.5rem;margin-bottom:0.5em}
